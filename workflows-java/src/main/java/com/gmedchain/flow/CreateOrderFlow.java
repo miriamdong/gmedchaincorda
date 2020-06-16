@@ -102,19 +102,19 @@ public class CreateOrderFlow {
             final SignedTransaction signedTx = getServiceHub().signInitialTransaction(txBuilder);
 
             // Send the state to the counterpart, and receive it back with their signature.
-            FlowSession sellerPartySession = initiateFlow(seller);
             FlowSession shipperPartySession = initiateFlow(shipper);
 
             // Stage 5.
             progressTracker.setCurrentStep(FINALISING_TRANSACTION);
             // Notarise and record the transaction in both parties' vaults.
-            subFlow(new FinalityFlow(signedTx, ImmutableSet.of(sellerPartySession)));
+            subFlow(new FinalityFlow(signedTx, ImmutableSet.of(shipperPartySession)));
 
-            return subFlow(new FinalityFlow(signedTx, ImmutableSet.of(shipperPartySession)));
+            FlowSession sellerPartySession = initiateFlow(seller);
+            return subFlow(new FinalityFlow(signedTx, ImmutableSet.of(sellerPartySession)));
         }
     }
 
-    @InitiatedBy(com.example.flow.ExampleFlow.Initiator.class)
+    @InitiatedBy(com.gmedchain.flow.CreateOrderFlow.Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartySession;
