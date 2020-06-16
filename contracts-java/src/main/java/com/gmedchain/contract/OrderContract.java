@@ -2,6 +2,7 @@ package com.gmedchain.contract;
 
 import com.example.state.IOUState;
 import com.gmedchain.state.OrderState;
+import com.gmedchain.types.Types;
 import com.sun.istack.NotNull;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.CommandWithParties;
@@ -60,7 +61,8 @@ public class OrderContract implements Contract {
                 require.using("The product quantity must non-negative.", outState.getProductQty() > 0);
                 require.using("The buyer address must be provided.", !outState.getBuyerAddress().isEmpty());
                 require.using("The seller address must be provided.", !outState.getSellerAddress().isEmpty());
-                require.using("The shipment price must non-negative.", outState.getShipmentPrice() > 0);
+                require.using("The shipment price must non-negative.", outState.getShippingCost() > 0);
+                require.using("The order status must be Ordered.", outState.getStatus() == Types.OrderTypes.Ordered);
 
                 return null;
             });

@@ -24,13 +24,13 @@ public class OrderSchemaV1 extends MappedSchema {
         @Column(name = "buyer") private final String buyer;
         @Column(name = "seller") private final String seller;
         @Column(name = "shipper") private final String shipper;
+        @Column(name = "buyer_address") private final String buyerAddress;
+        @Column(name = "seller_address") private final String sellerAddress;
         @Column(name = "product_sku") private final String productSKU;
         @Column(name = "product_name") private final String productName;
         @Column(name = "product_price") private final float productPrice;
         @Column(name = "product_qty") private final int productQty;
-        @Column(name = "buyer_address") private final String buyerAddress;
-        @Column(name = "seller_address") private final String sellerAddress;
-        @Column(name = "shipment_price") private final float shipmentPrice;
+        @Column(name = "shipping_cost") private final float shippingCost;
         @Column(name = "status") private final int status;
         @Column(name = "linear_id") private final UUID linearId;
 
@@ -38,25 +38,25 @@ public class OrderSchemaV1 extends MappedSchema {
                 String buyer,
                 String seller,
                 String shipper,
+                String buyerAddress,
+                String sellerAddress,
                 String productSKU,
                 String productName,
                 float productPrice,
                 Integer productQty,
-                String buyerAddress,
-                String sellerAddress,
-                float shipmentPrice,
+                float shippingCost,
                 int status,
                 UUID linearId) {
             this.buyer = buyer;
             this.seller = seller;
             this.shipper = shipper;
+            this.buyerAddress = buyerAddress;
+            this.sellerAddress = sellerAddress;
             this.productSKU = productSKU;
             this.productName = productName;
             this.productPrice = productPrice;
             this.productQty = productQty;
-            this.buyerAddress = buyerAddress;
-            this.sellerAddress = sellerAddress;
-            this.shipmentPrice = shipmentPrice;
+            this.shippingCost = shippingCost;
             this.status = status;
             this.linearId = linearId;
         }
@@ -66,14 +66,14 @@ public class OrderSchemaV1 extends MappedSchema {
             this.buyer = null;
             this.seller = null;
             this.shipper = null;
+            this.buyerAddress = null;
+            this.sellerAddress = null;
             this.productSKU = null;
             this.productName = null;
             this.productPrice = 0;
             this.productQty = 0;
-            this.buyerAddress = null;
-            this.sellerAddress = null;
-            this.shipmentPrice = 0;
-            this.status = Types.OrderTypes.None.ordinal();
+            this.shippingCost = 0;
+            this.status = 0;
             this.linearId = null;
         }
 
@@ -113,8 +113,8 @@ public class OrderSchemaV1 extends MappedSchema {
             return sellerAddress;
         }
 
-        public float getShipmentPrice() {
-            return shipmentPrice;
+        public float getShippingCost() {
+            return shippingCost;
         }
 
         public int getOrderStatus() { return status; }

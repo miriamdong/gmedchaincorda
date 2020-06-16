@@ -30,7 +30,7 @@ public class OrderState implements LinearState, QueryableState {
     private final Integer productQty;
     private final String buyerAddress;
     private final String sellerAddress;
-    private final float shipmentPrice;
+    private final float shippingCost;
     private final Types.OrderTypes status;
     private final UniqueIdentifier linearId;
 
@@ -41,7 +41,7 @@ public class OrderState implements LinearState, QueryableState {
      * @param productQty the quantity of the product.
      * @param buyerAddress the address of the buyer.
      * @param sellerAddress the address of the seller.
-     * @param shipmentPrice the shipment price.
+     * @param shippingCost the shipment price.
      * @param buyer the party issuing the Order.
      * @param seller the party receiving the Order.
      * @param status
@@ -49,27 +49,26 @@ public class OrderState implements LinearState, QueryableState {
     public OrderState(String productSKU,
                       String productName,
                       float productPrice,
-                      Integer productQty,
-                      String buyerAddress,
-                      String sellerAddress,
-                      float shipmentPrice,
+                      int productQty,
+                      float shippingCost,
                       Party buyer,
                       Party seller,
                       Party shipper,
-                      Types.OrderTypes status,
+                      String buyerAddress,
+                      String sellerAddress,
                       UniqueIdentifier linearId)
     {
         this.productSKU = productSKU;
         this.productName = productName;
         this.productPrice = productPrice;
         this.productQty = productQty;
-        this.buyerAddress = buyerAddress;
-        this.sellerAddress = sellerAddress;
-        this.shipmentPrice = shipmentPrice;
+        this.shippingCost = shippingCost;
         this.buyer = buyer;
         this.seller = seller;
         this.shipper = shipper;
-        this.status = status;
+        this.buyerAddress = buyerAddress;
+        this.sellerAddress = sellerAddress;
+        this.status = Types.OrderTypes.Ordered;
         this.linearId = linearId;
     }
 
@@ -91,8 +90,8 @@ public class OrderState implements LinearState, QueryableState {
     public String getSellerAddress() {
         return sellerAddress;
     }
-    public float getShipmentPrice() {
-        return shipmentPrice;
+    public float getShippingCost() {
+        return shippingCost;
     }
     public Party getBuyer() { return buyer; }
     public Party getSeller() { return seller; }
@@ -110,13 +109,13 @@ public class OrderState implements LinearState, QueryableState {
                     this.buyer.getName().toString(),
                     this.seller.getName().toString(),
                     this.shipper.getName().toString(),
+                    this.buyerAddress,
+                    this.sellerAddress,
                     this.productSKU,
                     this.productName,
                     this.productPrice,
                     this.productQty,
-                    this.buyerAddress,
-                    this.sellerAddress,
-                    this.shipmentPrice,
+                    this.shippingCost,
                     this.status.ordinal(),
                     this.linearId.getId());
         } else {
