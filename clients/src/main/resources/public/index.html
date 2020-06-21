@@ -37,8 +37,22 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="value" class="control-label">Value (Int):</label>
-                <input type="text" ng-model="modalInstance.form.value" class="form-control" id="value">
+<!--                <label for="value" class="control-label">Value (Int):</label>-->
+<!--                <input type="text" ng-model="modalInstance.form.value" class="form-control" id="value">-->
+                <label for="sku" class="control-label">Product SKU:</label>
+                <input type="text" ng-model="modalInstance.form.sku" class="form-control" id="sku">
+                <label for="name" class="control-label">Product Name: </label>
+                <input type="text" ng-model="modalInstance.form.name" class="form-control" id="name">
+                <label for="price" class="control-label">Product Price: </label>
+                <input type="text" ng-model="modalInstance.form.price" class="form-control" id="price">
+                <label for="qty" class="control-label">Qty:</label>
+                <input type="text" ng-model="modalInstance.form.qty" class="form-control" id="qty">
+                <label for="shippingCost" class="control-label">Shipping Cost:</label>
+                <input type="text" ng-model="modalInstance.form.shippingCost" class="form-control" id="shippingCost">
+                <label for="buyerAddress" class="control-label">Buyer Address:</label>
+                <input type="text" ng-model="modalInstance.form.buyerAddress" class="form-control" id="buyerAddress">
+                <label for="sellerAddress" class="control-label">Seller Address:</label>
+                <input type="text" ng-model="modalInstance.form.sellerAddress" class="form-control" id="sellerAddress">
             </div>
             <div ng-show="modalInstance.formError" class="form-group">
                 <div class="alert alert-danger" role="alert">
@@ -77,9 +91,17 @@
                     <div ng-repeat="iou in demoApp.ious" class="panel panel-default">
                         <div class="panel-body">
                             <ul>
-                                <li>Lender: {{iou.lender}}</li>
-                                <li>Borrower: {{iou.borrower}}</li>
-                                <li>Value: {{iou.value}}</li>
+                                <li>Buyer: {{iou.buyer}}</li>
+                                <li>Seller: {{iou.seller}}</li>
+                                <li>Shipper: {{iou.shipper}}</li>
+                                <li>productSKU: {{iou.order.productSku}}</li>
+                                <li>productName: {{iou.order.productName}}</li>
+                                <li>productPrice: {{iou.order.productPrice}}</li>
+                                <li>qty: {{iou.order.qty}}</li>
+                                <li>shippingCost: {{iou.order.shippingCost}}</li>
+                                <li>status: {{iou.order.status}}</li>
+                                <li>buyerAddress: {{iou.order.buyerAddress}}</li>
+                                <li>sellerAddress: {{iou.order.sellerAddress}}</li>
                             </ul>
                         </div>
                     </div>
@@ -97,9 +119,17 @@
                     <div ng-repeat="iou in demoApp.myious" class="panel panel-default">
                         <div class="panel-body">
                             <ul>
-                                <li>Lender: {{iou.lender}}</li>
-                                <li>Borrower: {{iou.borrower}}</li>
-                                <li>Value: {{iou.value}}</li>
+                                <li>Buyer: {{iou.buyer}}</li>
+                                <li>Seller: {{iou.seller}}</li>
+                                <li>Shipper: {{iou.shipper}}</li>
+                                <li>productSKU: {{iou.order.productSku}}</li>
+                                <li>productName: {{iou.order.productName}}</li>
+                                <li>productPrice: {{iou.order.productPrice}}</li>
+                                <li>qty: {{iou.order.qty}}</li>
+                                <li>shippingCost: {{iou.order.shippingCost}}</li>
+                                <li>status: {{iou.order.status}}</li>
+                                <li>buyerAddress: {{iou.order.buyerAddress}}</li>
+                                <li>sellerAddress: {{iou.order.sellerAddress}}</li>
                             </ul>
                         </div>
                     </div>

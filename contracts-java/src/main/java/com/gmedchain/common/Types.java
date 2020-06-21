@@ -1,6 +1,7 @@
-package com.gmedchain.types;
+package com.gmedchain.common;
 
 public class Types {
+
     public enum OrderTypes {
         Ordered,
         Confirmed,

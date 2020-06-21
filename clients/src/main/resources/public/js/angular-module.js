@@ -10,7 +10,8 @@ app.config(['$qProvider', function ($qProvider) {
 app.controller('DemoAppController', function($http, $location, $uibModal) {
     const demoApp = this;
 
-    const apiBaseURL = "/api/example/";
+    const apiBaseURL = "/api/gmedchain/";
+
     let peers = [];
 
     $http.get(apiBaseURL + "me").then((response) => demoApp.thisNode = response.data.me);
@@ -65,8 +66,14 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
 
                 let createIOUData = $.param({
                     partyName: modalInstance.form.counterparty,
-                    iouValue : modalInstance.form.value
-
+                    sku : modalInstance.form.sku,
+                    price : modalInstance.form.price,
+                    name : modalInstance.form.name,
+                    qty : modalInstance.form.qty,
+                    status: 0,
+                    shippingCost : modalInstance.form.shippingCost,
+                    buyerAddress : modalInstance.form.buyerAddress,
+                    sellerAddress : modalInstance.form.sellerAddress
                 });
 
                 let createIOUHeaders = {

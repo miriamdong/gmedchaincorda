@@ -1,6 +1,5 @@
 package com.gmedchain.schema;
 
-import com.gmedchain.types.Types;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 
@@ -29,7 +28,7 @@ public class OrderSchemaV1 extends MappedSchema {
         @Column(name = "product_sku") private final String productSKU;
         @Column(name = "product_name") private final String productName;
         @Column(name = "product_price") private final float productPrice;
-        @Column(name = "product_qty") private final int productQty;
+        @Column(name = "qty") private final int qty;
         @Column(name = "shipping_cost") private final float shippingCost;
         @Column(name = "status") private final int status;
         @Column(name = "linear_id") private final UUID linearId;
@@ -43,7 +42,7 @@ public class OrderSchemaV1 extends MappedSchema {
                 String productSKU,
                 String productName,
                 float productPrice,
-                Integer productQty,
+                int qty,
                 float shippingCost,
                 int status,
                 UUID linearId) {
@@ -55,7 +54,7 @@ public class OrderSchemaV1 extends MappedSchema {
             this.productSKU = productSKU;
             this.productName = productName;
             this.productPrice = productPrice;
-            this.productQty = productQty;
+            this.qty = qty;
             this.shippingCost = shippingCost;
             this.status = status;
             this.linearId = linearId;
@@ -71,7 +70,7 @@ public class OrderSchemaV1 extends MappedSchema {
             this.productSKU = null;
             this.productName = null;
             this.productPrice = 0;
-            this.productQty = 0;
+            this.qty = 0;
             this.shippingCost = 0;
             this.status = 0;
             this.linearId = null;
@@ -101,8 +100,8 @@ public class OrderSchemaV1 extends MappedSchema {
             return productPrice;
         }
 
-        public int getProductQty() {
-            return productQty;
+        public int getQty() {
+            return qty;
         }
 
         public String getBuyerAddress() {
