@@ -63,7 +63,6 @@ public class ConfirmOrderFlow {
         );
 
         public Initiator(Order order, Party buyer, Party shipper) {
-            order.setStatus(1);
             this.order = order;
             this.buyer = buyer;
             this.shipper = shipper;

@@ -63,7 +63,6 @@ public class DeliveryOrderFlow {
         );
 
         public Initiator(Order order, Party buyer, Party seller) {
-            order.setStatus(4);
             this.order = order;
             this.buyer = buyer;
             this.seller = seller;

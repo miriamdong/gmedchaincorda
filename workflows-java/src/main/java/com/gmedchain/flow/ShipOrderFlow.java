@@ -63,7 +63,6 @@ public class ShipOrderFlow {
         );
 
         public Initiator(Order order, Party buyer, Party seller) {
-            order.setStatus(3);
             this.order = order;
             this.buyer = buyer;
             this.seller = seller;
