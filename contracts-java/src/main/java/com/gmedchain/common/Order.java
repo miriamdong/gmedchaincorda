@@ -10,7 +10,7 @@ public class Order {
     private final float productPrice;
     private final int qty;
     private final float shippingCost;
-    private final int status;
+    private int status;
     private final String buyerAddress;
     private final String sellerAddress;
 
@@ -67,5 +67,9 @@ public class Order {
 
     public String getSellerAddress() {
         return sellerAddress;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
