@@ -91,7 +91,7 @@ public class DeliveryOrderFlow {
             UniqueIdentifier txId = new UniqueIdentifier();
 
 
-            OrderState orderState = new OrderState(order, me, buyer, seller, txId);
+            OrderState orderState = new OrderState(order, buyer, seller, me, txId);
 
             final Command<OrderContract.Commands.Delivery> txCommand = new Command<>(
                     new OrderContract.Commands.Delivery(),

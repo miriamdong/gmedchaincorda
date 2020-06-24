@@ -91,7 +91,7 @@ public class ConfirmOrderFlow {
             UniqueIdentifier txId = new UniqueIdentifier();
 
 
-            OrderState orderState = new OrderState(order, me, buyer, shipper, txId);
+            OrderState orderState = new OrderState(order, buyer, me, shipper, txId);
 
             final Command<OrderContract.Commands.Confirm> txCommand = new Command<>(
                     new OrderContract.Commands.Confirm(),

@@ -91,7 +91,7 @@ public class ConfirmPickupFlow {
             UniqueIdentifier txId = new UniqueIdentifier();
 
 
-            OrderState orderState = new OrderState(order, me, buyer, shipper, txId);
+            OrderState orderState = new OrderState(order, buyer,me, shipper, txId);
 
             final Command<OrderContract.Commands.ConfirmPickup> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmPickup(),
