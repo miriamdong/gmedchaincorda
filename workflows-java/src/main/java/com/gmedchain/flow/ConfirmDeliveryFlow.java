@@ -1,10 +1,12 @@
 package com.gmedchain.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.gmedchain.common.Order;
+import com.gmedchain.contract.OrderContract;
+import com.gmedchain.state.OrderState;
 import com.gmedchain.utils.FlowUtils;
-import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.*;
+import net.corda.core.contracts.Command;
+import net.corda.core.contracts.StateAndRef;
+import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
@@ -12,13 +14,12 @@ import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
-import com.gmedchain.state.OrderState;
-import com.gmedchain.contract.OrderContract;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-public class ShipOrderFlow {
+
+public class ConfirmDeliveryFlow {
 
     @InitiatingFlow
     @StartableByRPC
@@ -96,8 +97,8 @@ public class ShipOrderFlow {
             OrderState orderState = (OrderState) transactionState.getData();
 
             orderState.getOrder().setStatus(orderStatus);
-            final Command<OrderContract.Commands.Ship> txCommand = new Command<>(
-                    new OrderContract.Commands.Ship(),
+            final Command<OrderContract.Commands.ConfirmDelivery> txCommand = new Command<>(
+                    new OrderContract.Commands.ConfirmDelivery(),
                     me.getOwningKey());
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
@@ -116,7 +117,7 @@ public class ShipOrderFlow {
 
             // Find other participants.
             List<AbstractParty> otherParticipants = orderState.getParticipants().stream()
-                    .filter(party -> party == orderState.getBuyer() || party == orderState.getSeller())
+                    .filter(party -> party == orderState.getShipper() || party == orderState.getSeller())
                     .collect(Collectors.toList());
 
             // Stage 4.
@@ -133,7 +134,7 @@ public class ShipOrderFlow {
         }
     }
 
-    @InitiatedBy(com.gmedchain.flow.ConfirmPickupFlow.Initiator.class)
+    @InitiatedBy(ConfirmPickupFlow.Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartySession;

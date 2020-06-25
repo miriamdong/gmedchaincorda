@@ -7,6 +7,7 @@ public class Types {
         Confirmed,
         ReadyForPickup,
         Shipped,
-        Delivered
+        Delivered,
+        ConfirmDelivery
     }
 }

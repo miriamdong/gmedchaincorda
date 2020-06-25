@@ -2,9 +2,9 @@ package com.gmedchain.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.gmedchain.common.Order;
+import com.gmedchain.utils.FlowUtils;
 import com.google.common.collect.ImmutableSet;
-import net.corda.core.contracts.UniqueIdentifier;
-import net.corda.core.contracts.Command;
+import net.corda.core.contracts.*;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
@@ -18,15 +18,13 @@ import com.gmedchain.contract.OrderContract;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 public class DeliveryOrderFlow {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class Initiator extends FlowLogic<UniqueIdentifier> {
-        private final Order order;
-        private final Party buyer;
-        private final Party seller;
+    public static class Initiator extends FlowLogic<SignedTransaction> {
+        private final UniqueIdentifier linearId;
+        private final int orderStatus;
 
         private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
@@ -62,10 +60,10 @@ public class DeliveryOrderFlow {
                 FINALISING_TRANSACTION
         );
 
-        public Initiator(Order order, Party buyer, Party seller) {
-            this.order = order;
-            this.buyer = buyer;
-            this.seller = seller;
+
+        public Initiator(UniqueIdentifier linearId, int orderStatus) {
+            this.linearId = linearId;
+            this.orderStatus = orderStatus;
         }
 
         @Override
@@ -78,7 +76,7 @@ public class DeliveryOrderFlow {
          */
         @Suspendable
         @Override
-        public UniqueIdentifier call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
             // Obtain a reference to the notary we want to use.
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
@@ -87,15 +85,22 @@ public class DeliveryOrderFlow {
             // Generate an unsigned transaction.
             Party me = getOurIdentity();
 
-            UniqueIdentifier txId = new UniqueIdentifier();
+            StateAndRef<OrderState> stateAndRef = null;
+            try {
+                stateAndRef = FlowUtils.retrieveOrderState(linearId, getServiceHub().getVaultService());
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
 
+            TransactionState transactionState = stateAndRef.getState();
+            OrderState orderState = (OrderState) transactionState.getData();
 
-            OrderState orderState = new OrderState(order, buyer, seller, me, txId);
-
+            orderState.getOrder().setStatus(orderStatus);
             final Command<OrderContract.Commands.Delivery> txCommand = new Command<>(
                     new OrderContract.Commands.Delivery(),
                     me.getOwningKey());
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
+                    .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)
                     .addCommand(txCommand);
             // Stage 2.
@@ -111,7 +116,7 @@ public class DeliveryOrderFlow {
 
             // Find other participants.
             List<AbstractParty> otherParticipants = orderState.getParticipants().stream()
-                    .filter(party -> party == buyer || party == seller)
+                    .filter(party -> party == orderState.getBuyer() || party == orderState.getSeller())
                     .collect(Collectors.toList());
 
             // Stage 4.
@@ -122,13 +127,13 @@ public class DeliveryOrderFlow {
             final SignedTransaction fullySignedTx = subFlow(
                     new CollectSignaturesFlow(signedTx, sessions, CollectSignaturesFlow.Companion.tracker()));
 
-            subFlow(new FinalityFlow(fullySignedTx, sessions));
 
-            return  txId;
+
+            return  subFlow(new FinalityFlow(fullySignedTx, sessions));
         }
     }
 
-    @InitiatedBy(com.gmedchain.flow.DeliveryOrderFlow.Initiator.class)
+    @InitiatedBy(com.gmedchain.flow.ConfirmPickupFlow.Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartySession;

@@ -104,5 +104,6 @@ public class OrderContract implements Contract {
         class ConfirmPickup implements Commands {}
         class Ship implements Commands {}
         class Delivery implements Commands {}
+        class ConfirmDelivery implements Commands {}
     }
 }
