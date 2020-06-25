@@ -5,15 +5,23 @@ import com.gmedchain.contract.OrderContract;
 import com.gmedchain.schema.OrderSchemaV1;
 import net.corda.core.contracts.BelongsToContract;
 import net.corda.core.contracts.LinearState;
+import net.corda.core.contracts.StateAndRef;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
+import net.corda.core.node.services.Vault;
+import net.corda.core.node.services.VaultService;
+import net.corda.core.node.services.vault.Builder;
+import net.corda.core.node.services.vault.CriteriaExpression;
+import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 import net.corda.core.schemas.QueryableState;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.gmedchain.schema.OrderSchemaV1.*;
 
 /**
  * The state object recording Order agreements between associated parties.
@@ -29,10 +37,11 @@ public class OrderState implements LinearState, QueryableState {
     private final UniqueIdentifier linearId;
 
     /**
-     * @param order
+     * @param order the order including the order info.
      * @param buyer the party issuing the Order.
      * @param seller the party receiving the Order.
      * @param shipper the party receiving the Order.
+     * @param linearId the unique Id shared by all OrderState states throughout history within the vaults of all parties.
      */
     public OrderState(Order order, Party buyer, Party seller, Party shipper, UniqueIdentifier linearId)
     {
@@ -55,7 +64,7 @@ public class OrderState implements LinearState, QueryableState {
 
     @Override public PersistentState generateMappedObject(MappedSchema schema) {
         if (schema instanceof OrderSchemaV1) {
-            return new OrderSchemaV1.PersistentOrder(
+            return new PersistentOrder(
                     this.buyer.getName().toString(),
                     this.seller.getName().toString(),
                     this.shipper.getName().toString(),

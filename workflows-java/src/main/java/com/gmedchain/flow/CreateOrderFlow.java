@@ -72,8 +72,8 @@ public class CreateOrderFlow {
             // Generate an unsigned transaction.
             Party me = getOurIdentity();
 
-            UniqueIdentifier txId = new UniqueIdentifier();
-            OrderState orderState = new OrderState(order, me, seller, shipper, txId);
+            UniqueIdentifier linearId = new UniqueIdentifier();
+            OrderState orderState = new OrderState(order, me, seller, shipper, linearId);
 
             final Command<OrderContract.Commands.Create> txCommand = new Command<>(
                     new OrderContract.Commands.Create(),
@@ -103,7 +103,7 @@ public class CreateOrderFlow {
                     initiateFlow(it)).collect(Collectors.toSet());
 
             subFlow(new FinalityFlow(signedTx, sessions));
-            return txId;
+            return linearId;
         }
     }
 

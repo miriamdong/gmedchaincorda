@@ -1,5 +1,6 @@
 package com.gmedchain.schema;
 
+import net.corda.core.node.services.vault.FieldInfo;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 

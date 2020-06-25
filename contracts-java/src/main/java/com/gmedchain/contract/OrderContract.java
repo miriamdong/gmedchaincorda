@@ -38,39 +38,60 @@ public class OrderContract implements Contract {
         List<ContractState> outputs = tx.getOutputStates();
         List<CommandWithParties<CommandData>> commands = tx.getCommands();
         CommandWithParties<Commands> command = requireSingleCommand(commands, Commands.class);
+        final OrderState outState = (OrderState) outputs.get(0);
+
+        // Generic constraints around the Order transaction.
+        requireThat(require -> {
+            require.using("Only one output state should be produced.", outputs.size() == 1);
+
+            require.using("The buyer, the seller and the shipper cannot be the same entity.",
+                    !outState.getBuyer().equals(outState.getSeller()) &&
+                            !outState.getBuyer().equals(outState.getShipper()));
+            require.using("Order contains at least 3 participants.", outState.getParticipants().size() > 2 );
+
+            // Order-specific state level constraints.
+            require.using("The product SKU must be provided.", !outState.getOrder().getProductSku().isEmpty());
+            require.using("The product name must be provided.", !outState.getOrder().getProductName().isEmpty());
+            require.using("The product price must be non-negative.", outState.getOrder().getProductPrice() > 0);
+            require.using("The product quantity must non-negative.", outState.getOrder().getQty() > 0);
+            require.using("The buyer address must be provided.", !outState.getOrder().getBuyerAddress().isEmpty());
+            require.using("The seller address must be provided.", !outState.getOrder().getSellerAddress().isEmpty());
+            require.using("The shipment price must non-negative.", outState.getOrder().getShippingCost() > 0);
+
+            return null;
+        });
 
         if (command.getValue() instanceof Commands.Create) {
             requireThat(require -> {
-                // Generic constraints around the Order transaction.
-                require.using("No inputs should be consumed when creating an Create Order.", inputs.size() == 0);
-                require.using("Only one output state should be created.", outputs.size() == 1);
-
-                final OrderState outState = (OrderState) outputs.get(0);
-                require.using("The buyer, the seller and the shipper cannot be the same entity.",
-                        !outState.getBuyer().equals(outState.getSeller()) &&
-                             !outState.getBuyer().equals(outState.getShipper()));
-                require.using("Create Order contains at least 2 participants.", outState.getParticipants().size() > 2);
-
-                // Order-specific state level constraints.
-                require.using("The product SKU must be provided.", !outState.getOrder().getProductSku().isEmpty());
-                require.using("The product name must be provided.", !outState.getOrder().getProductName().isEmpty());
-                require.using("The product price must be non-negative.", outState.getOrder().getProductPrice() > 0);
-                require.using("The product quantity must non-negative.", outState.getOrder().getQty() > 0);
-                require.using("The buyer address must be provided.", !outState.getOrder().getBuyerAddress().isEmpty());
-                require.using("The seller address must be provided.", !outState.getOrder().getSellerAddress().isEmpty());
-                require.using("The shipment price must non-negative.", outState.getOrder().getShippingCost() > 0);
-                //require.using("The order status must be Ordered.", outState.getOrder().Status == Types.OrderTypes.Ordered);
-
+                require.using("No inputs should be consumed when creating an order.", inputs.size() == 0);
+                require.using("The order status value must be 0(Ordered) for create order.", outState.getOrder().getStatus() == 0);
                 return null;
             });
         } else if (command.getValue() instanceof Commands.Confirm) {
-
+            System.out.println("inputs.size()" + inputs.size());
+            requireThat(require -> {
+               require.using("Only one input should be consumed when confirming an order.", inputs.size() == 1);
+               require.using("The order status value must be 1(Confirmed) for confirm order", outState.getOrder().getStatus() == 1);
+               return null;
+            });
         } else if (command.getValue() instanceof Commands.ConfirmPickup) {
-
+            requireThat(require -> {
+                require.using("Only one input should be consumed when confirming pickup an order.", inputs.size() == 1);
+                require.using("The order status value must be 2(ConfirmPickup) for ConfirmPickup Order", outState.getOrder().getStatus() == 2);
+                return null;
+            });
         } else if (command.getValue() instanceof Commands.Ship) {
-
+            requireThat(require -> {
+                require.using("Only one input should be consumed when shipping pickup an order.", inputs.size() == 1);
+                require.using("The order status value must be 3(Shipped) for shipping an order", outState.getOrder().getStatus() == 3);
+                return null;
+            });
         } else if (command.getValue() instanceof Commands.Delivery) {
-
+             requireThat(require -> {
+                require.using("Only one input should be consumed when delivering an order.", inputs.size() == 1);
+                require.using("The order status value must be 4(Delivered) for delivering an order.", outState.getOrder().getStatus() == 4);
+                return null;
+            });
         }
     }
 

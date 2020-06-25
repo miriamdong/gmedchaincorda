@@ -1,11 +1,10 @@
 package com.gmedchain.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.gmedchain.common.Order;
-import com.google.common.collect.ImmutableSet;
+import net.corda.core.contracts.StateAndRef;
+import net.corda.core.contracts.TransactionState;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.contracts.Command;
-import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
@@ -14,6 +13,7 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import com.gmedchain.state.OrderState;
 import com.gmedchain.contract.OrderContract;
+import com.gmedchain.utils.FlowUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -23,10 +23,9 @@ public class ConfirmOrderFlow {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class Initiator extends FlowLogic<UniqueIdentifier> {
-        private final Order order;
-        private final Party buyer;
-        private final Party shipper;
+    public static class Initiator extends FlowLogic<SignedTransaction> {
+        private final UniqueIdentifier linearId;
+        private final int orderStatus;
 
         private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
@@ -62,10 +61,9 @@ public class ConfirmOrderFlow {
                 FINALISING_TRANSACTION
         );
 
-        public Initiator(Order order, Party buyer, Party shipper) {
-            this.order = order;
-            this.buyer = buyer;
-            this.shipper = shipper;
+        public Initiator(UniqueIdentifier linearId, int orderStatus) {
+            this.linearId = linearId;
+            this.orderStatus = orderStatus;
         }
 
         @Override
@@ -78,7 +76,7 @@ public class ConfirmOrderFlow {
          */
         @Suspendable
         @Override
-        public UniqueIdentifier call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
             // Obtain a reference to the notary we want to use.
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
@@ -87,22 +85,30 @@ public class ConfirmOrderFlow {
             // Generate an unsigned transaction.
             Party me = getOurIdentity();
 
-            UniqueIdentifier txId = new UniqueIdentifier();
+            StateAndRef<OrderState> stateAndRef = null;
+            try {
+                stateAndRef = FlowUtils.retrieveOrderState(linearId, getServiceHub().getVaultService());
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
 
-
-            OrderState orderState = new OrderState(order, buyer, me, shipper, txId);
+            TransactionState transactionState = stateAndRef.getState();
+            OrderState orderState = (OrderState) transactionState.getData();
 
             final Command<OrderContract.Commands.Confirm> txCommand = new Command<>(
                     new OrderContract.Commands.Confirm(),
                     me.getOwningKey());
+
+            orderState.getOrder().setStatus(orderStatus);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
+                    .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)
                     .addCommand(txCommand);
+
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
             // Verify that the transaction is valid.
             txBuilder.verify(getServiceHub());
-
 
             // Stage 3.
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
@@ -111,7 +117,7 @@ public class ConfirmOrderFlow {
 
             // Find other participants.
             List<AbstractParty> otherParticipants = orderState.getParticipants().stream()
-                    .filter(party -> party == buyer || party == shipper)
+                    .filter(party -> party == orderState.getBuyer() || party == orderState.getShipper())
                     .collect(Collectors.toList());
 
             // Stage 4.
@@ -122,9 +128,7 @@ public class ConfirmOrderFlow {
             final SignedTransaction fullySignedTx = subFlow(
                     new CollectSignaturesFlow(signedTx, sessions, CollectSignaturesFlow.Companion.tracker()));
 
-            subFlow(new FinalityFlow(fullySignedTx, sessions));
-
-            return  txId;
+            return subFlow(new FinalityFlow(fullySignedTx, sessions));
         }
     }
 
