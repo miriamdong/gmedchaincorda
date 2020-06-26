@@ -134,7 +134,7 @@ public class ConfirmDeliveryFlow {
         }
     }
 
-    @InitiatedBy(ConfirmPickupFlow.Initiator.class)
+    @InitiatedBy(ConfirmDeliveryFlow.Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartySession;

@@ -133,7 +133,7 @@ public class DeliveryOrderFlow {
         }
     }
 
-    @InitiatedBy(com.gmedchain.flow.ConfirmPickupFlow.Initiator.class)
+    @InitiatedBy(com.gmedchain.flow.DeliveryOrderFlow.Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartySession;
