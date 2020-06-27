@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
 public class ConfirmDeliveryFlow {
 
     @InitiatingFlow
@@ -96,7 +98,13 @@ public class ConfirmDeliveryFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
+            requireThat(require -> {
+                require.using("The Seller is the only participant allow to run this flow", orderState.getBuyer() == me) ;
+                return null;
+            });
+
             orderState.getOrder().setStatus(orderStatus);
+            orderState.setOwner(me);
             final Command<OrderContract.Commands.ConfirmDelivery> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmDelivery(),
                     me.getOwningKey());

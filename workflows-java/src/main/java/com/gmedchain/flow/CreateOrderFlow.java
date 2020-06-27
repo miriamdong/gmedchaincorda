@@ -4,7 +4,6 @@ import com.gmedchain.common.Order;
 import com.gmedchain.state.OrderState;
 import com.gmedchain.contract.OrderContract;
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
@@ -73,7 +72,7 @@ public class CreateOrderFlow {
             Party me = getOurIdentity();
 
             UniqueIdentifier linearId = new UniqueIdentifier();
-            OrderState orderState = new OrderState(order, me, seller, shipper, linearId);
+            OrderState orderState = new OrderState(order, me, seller, shipper, me, linearId);
 
             final Command<OrderContract.Commands.Create> txCommand = new Command<>(
                     new OrderContract.Commands.Create(),

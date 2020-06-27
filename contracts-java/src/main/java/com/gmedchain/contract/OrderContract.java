@@ -7,6 +7,7 @@ import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.CommandWithParties;
 import net.corda.core.contracts.Contract;
 import net.corda.core.contracts.ContractState;
+import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
 
 import java.util.List;
@@ -70,26 +71,37 @@ public class OrderContract implements Contract {
         } else if (command.getValue() instanceof Commands.Confirm) {
             System.out.println("inputs.size()" + inputs.size());
             requireThat(require -> {
+               require.using("The Seller is the only participant allow to Confirm Order", outState.getOwner() == outState.getSeller());
                require.using("Only one input should be consumed when confirming an order.", inputs.size() == 1);
                require.using("The order status value must be 1(Confirmed) for confirm order", outState.getOrder().getStatus() == 1);
                return null;
             });
         } else if (command.getValue() instanceof Commands.ConfirmPickup) {
             requireThat(require -> {
+                require.using("The Seller is the only participant allow to Confirm Pickup", outState.getOwner() == outState.getSeller());
                 require.using("Only one input should be consumed when confirming pickup an order.", inputs.size() == 1);
                 require.using("The order status value must be 2(ConfirmPickup) for ConfirmPickup Order", outState.getOrder().getStatus() == 2);
                 return null;
             });
         } else if (command.getValue() instanceof Commands.Ship) {
             requireThat(require -> {
+                require.using("The Shipper is the only participant allow to Ship Order", outState.getOwner() == outState.getShipper());
                 require.using("Only one input should be consumed when shipping pickup an order.", inputs.size() == 1);
                 require.using("The order status value must be 3(Shipped) for shipping an order", outState.getOrder().getStatus() == 3);
                 return null;
             });
         } else if (command.getValue() instanceof Commands.Delivery) {
              requireThat(require -> {
+                require.using("The Shipper is the only participant allow to Start Delivery", outState.getOwner() == outState.getShipper());
                 require.using("Only one input should be consumed when delivering an order.", inputs.size() == 1);
                 require.using("The order status value must be 4(Delivered) for delivering an order.", outState.getOrder().getStatus() == 4);
+                return null;
+            });
+        } else if (command.getValue() instanceof Commands.ConfirmDelivery) {
+            requireThat(require -> {
+                require.using("The Buyer is the only participant allow to Confirm Delivery", outState.getOwner() == outState.getBuyer());
+                require.using("Only one input should be consumed when delivering an order.", inputs.size() == 1);
+                require.using("The order status value must be 4(Delivered) for delivering an order.", outState.getOrder().getStatus() == 5);
                 return null;
             });
         }

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
 public class ConfirmOrderFlow {
 
     @InitiatingFlow
@@ -99,7 +101,10 @@ public class ConfirmOrderFlow {
                     new OrderContract.Commands.Confirm(),
                     me.getOwningKey());
 
+
+
             orderState.getOrder().setStatus(orderStatus);
+            orderState.setOwner(me);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)

@@ -96,6 +96,7 @@ public class DeliveryOrderFlow {
             OrderState orderState = (OrderState) transactionState.getData();
 
             orderState.getOrder().setStatus(orderStatus);
+            orderState.setOwner(me);
             final Command<OrderContract.Commands.Delivery> txCommand = new Command<>(
                     new OrderContract.Commands.Delivery(),
                     me.getOwningKey());

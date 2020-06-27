@@ -96,6 +96,7 @@ public class ShipOrderFlow {
             OrderState orderState = (OrderState) transactionState.getData();
 
             orderState.getOrder().setStatus(orderStatus);
+            orderState.setOwner(me);
             final Command<OrderContract.Commands.Ship> txCommand = new Command<>(
                     new OrderContract.Commands.Ship(),
                     me.getOwningKey());

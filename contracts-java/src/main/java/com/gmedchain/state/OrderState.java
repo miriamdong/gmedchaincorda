@@ -5,15 +5,9 @@ import com.gmedchain.contract.OrderContract;
 import com.gmedchain.schema.OrderSchemaV1;
 import net.corda.core.contracts.BelongsToContract;
 import net.corda.core.contracts.LinearState;
-import net.corda.core.contracts.StateAndRef;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-import net.corda.core.node.services.Vault;
-import net.corda.core.node.services.VaultService;
-import net.corda.core.node.services.vault.Builder;
-import net.corda.core.node.services.vault.CriteriaExpression;
-import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.schemas.MappedSchema;
 import net.corda.core.schemas.PersistentState;
 import net.corda.core.schemas.QueryableState;
@@ -34,6 +28,7 @@ public class OrderState implements LinearState, QueryableState {
     private final Party buyer;
     private final Party seller;
     private final Party shipper;
+    private  Party owner;
     private final UniqueIdentifier linearId;
 
     /**
@@ -41,14 +36,16 @@ public class OrderState implements LinearState, QueryableState {
      * @param buyer the party issuing the Order.
      * @param seller the party receiving the Order.
      * @param shipper the party receiving the Order.
+     * @param owner
      * @param linearId the unique Id shared by all OrderState states throughout history within the vaults of all parties.
      */
-    public OrderState(Order order, Party buyer, Party seller, Party shipper, UniqueIdentifier linearId)
+    public OrderState(Order order, Party buyer, Party seller, Party shipper, Party owner, UniqueIdentifier linearId)
     {
         this.order = order;
         this.buyer = buyer;
         this.seller = seller;
         this.shipper = shipper;
+        this.owner = owner;
         this.linearId = linearId;
     }
 
@@ -56,6 +53,8 @@ public class OrderState implements LinearState, QueryableState {
     public Party getBuyer() { return buyer; }
     public Party getSeller() { return seller; }
     public Party getShipper() { return shipper; }
+    public Party getOwner() { return owner; }
+    public void setOwner(Party owner){ this.owner = owner;}
 
     @Override public UniqueIdentifier getLinearId() { return linearId; }
     @Override public List<AbstractParty> getParticipants() {
@@ -68,6 +67,7 @@ public class OrderState implements LinearState, QueryableState {
                     this.buyer.getName().toString(),
                     this.seller.getName().toString(),
                     this.shipper.getName().toString(),
+                    this.owner.getName().toString(),
                     this.order.getBuyerAddress(),
                     this.order.getSellerAddress(),
                     this.order.getProductSku(),

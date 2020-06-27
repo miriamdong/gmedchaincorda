@@ -97,6 +97,7 @@ public class ConfirmPickupFlow {
             OrderState orderState = (OrderState) transactionState.getData();
 
             orderState.getOrder().setStatus(orderStatus);
+            orderState.setOwner(me);
             final Command<OrderContract.Commands.ConfirmPickup> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmPickup(),
                     me.getOwningKey());

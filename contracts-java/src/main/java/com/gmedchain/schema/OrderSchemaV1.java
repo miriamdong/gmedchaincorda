@@ -24,6 +24,7 @@ public class OrderSchemaV1 extends MappedSchema {
         @Column(name = "buyer") private final String buyer;
         @Column(name = "seller") private final String seller;
         @Column(name = "shipper") private final String shipper;
+        @Column(name = "owner") private final String owner;
         @Column(name = "buyer_address") private final String buyerAddress;
         @Column(name = "seller_address") private final String sellerAddress;
         @Column(name = "product_sku") private final String productSKU;
@@ -38,6 +39,7 @@ public class OrderSchemaV1 extends MappedSchema {
                 String buyer,
                 String seller,
                 String shipper,
+                String owner,
                 String buyerAddress,
                 String sellerAddress,
                 String productSKU,
@@ -50,6 +52,7 @@ public class OrderSchemaV1 extends MappedSchema {
             this.buyer = buyer;
             this.seller = seller;
             this.shipper = shipper;
+            this.owner = owner;
             this.buyerAddress = buyerAddress;
             this.sellerAddress = sellerAddress;
             this.productSKU = productSKU;
@@ -66,6 +69,7 @@ public class OrderSchemaV1 extends MappedSchema {
             this.buyer = null;
             this.seller = null;
             this.shipper = null;
+            this.owner = null;
             this.buyerAddress = null;
             this.sellerAddress = null;
             this.productSKU = null;
@@ -87,6 +91,10 @@ public class OrderSchemaV1 extends MappedSchema {
 
         public String getShipper() {
             return shipper;
+        }
+
+        public String getOwer() {
+            return owner;
         }
 
         public String getProductSKU() {
