@@ -80,13 +80,8 @@ public class ConfirmDeliveryFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            // Obtain a reference to the notary we want to use.
-            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
-            // Generate an unsigned transaction.
-            Party me = getOurIdentity();
 
             StateAndRef<OrderState> stateAndRef = null;
             try {
@@ -96,15 +91,21 @@ public class ConfirmDeliveryFlow {
             }
 
             TransactionState transactionState = stateAndRef.getState();
+
             OrderState orderState = (OrderState) transactionState.getData();
 
-            requireThat(require -> {
-                require.using("The Seller is the only participant allow to run this flow", orderState.getBuyer() == me) ;
-                return null;
-            });
-
+            // Set order status.
             orderState.getOrder().setStatus(orderStatus);
-            orderState.setOwner(me);
+
+            // Obtain a reference to the notary we want to use.
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
+
+            // Set ownership to buyers.
+            Party buyer = orderState.getBuyer();
+            orderState.setOwner(buyer);
+
+            Party me = getOurIdentity();
+
             final Command<OrderContract.Commands.ConfirmDelivery> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmDelivery(),
                     me.getOwningKey());
@@ -112,6 +113,7 @@ public class ConfirmDeliveryFlow {
                     .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)
                     .addCommand(txCommand);
+
             // Stage 2.
             progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
             // Verify that the transaction is valid.

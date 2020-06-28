@@ -78,13 +78,8 @@ public class ConfirmPickupFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            // Obtain a reference to the notary we want to use.
-            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
-            // Generate an unsigned transaction.
-            Party me = getOurIdentity();
 
             StateAndRef<OrderState> stateAndRef = null;
             try {
@@ -96,11 +91,22 @@ public class ConfirmPickupFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
+            // Set order status.
             orderState.getOrder().setStatus(orderStatus);
-            orderState.setOwner(me);
+
+            // Set ownership to seller.
+            Party seller = orderState.getSeller();
+            orderState.setOwner(seller);
+
+            Party me = getOurIdentity();
+
             final Command<OrderContract.Commands.ConfirmPickup> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmPickup(),
                     me.getOwningKey());
+
+            // Obtain a reference to the notary we want to use.
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
+
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)

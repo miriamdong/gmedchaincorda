@@ -15,7 +15,7 @@ import static net.corda.core.node.services.vault.QueryCriteriaUtils.getField;
 
 public class FlowUtils {
     /**
-     * Retrieves state with the provided ID from the local vault.
+     * Retrieves state with the provided linearId from the local vault.
      */
     public static StateAndRef<OrderState> retrieveOrderState(UniqueIdentifier linearId, VaultService vaultService) throws NoSuchFieldException {
         QueryCriteria.VaultQueryCriteria generalCriteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL);

@@ -69,7 +69,6 @@ public class OrderContract implements Contract {
                 return null;
             });
         } else if (command.getValue() instanceof Commands.Confirm) {
-            System.out.println("inputs.size()" + inputs.size());
             requireThat(require -> {
                require.using("The Seller is the only participant allow to Confirm Order", outState.getOwner() == outState.getSeller());
                require.using("Only one input should be consumed when confirming an order.", inputs.size() == 1);

@@ -77,9 +77,6 @@ public class ShipOrderFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            // Obtain a reference to the notary we want to use.
-            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
             // Generate an unsigned transaction.
@@ -95,11 +92,20 @@ public class ShipOrderFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
+            // Set order status.
             orderState.getOrder().setStatus(orderStatus);
-            orderState.setOwner(me);
+
+            // Obtain a reference to the notary we want to use.
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
+
+            // Set ownership to shipper.
+            Party shipper = orderState.getShipper();
+            orderState.setOwner(shipper);
+
             final Command<OrderContract.Commands.Ship> txCommand = new Command<>(
                     new OrderContract.Commands.Ship(),
                     me.getOwningKey());
+
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
                     .addOutputState(orderState, OrderContract.ID)
