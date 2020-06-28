@@ -106,8 +106,8 @@ public class ConfirmOrderFlow {
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
             // Set ownership to seller.
-            Party seller = orderState.getSeller();
-            orderState.setOwner(seller);
+
+            orderState.setOwner(me);
 
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
