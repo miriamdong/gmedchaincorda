@@ -29,7 +29,7 @@ public class ConfirmDeliveryFlow {
         private final UniqueIdentifier linearId;
         private final int orderStatus;
 
-        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
+        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new Confirm Delivery.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
         private final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step("Signing transaction with our private key.");
         private final ProgressTracker.Step GATHERING_BUYER_SIG = new ProgressTracker.Step("Gathering the buyer's signature.") {
@@ -94,6 +94,14 @@ public class ConfirmDeliveryFlow {
 
             OrderState orderState = (OrderState) transactionState.getData();
 
+            Party me = getOurIdentity();
+
+            // Ensure the current node identity be buyer.
+            requireThat(require -> {
+                require.using("This node identity must be buyer to perform confirm delivery flow.", me.equals(orderState.getBuyer()));
+                return null;
+            });
+
             // Set order status.
             orderState.getOrder().setStatus(orderStatus);
 
@@ -103,8 +111,6 @@ public class ConfirmDeliveryFlow {
             // Set ownership to buyers.
             Party buyer = orderState.getBuyer();
             orderState.setOwner(buyer);
-
-            Party me = getOurIdentity();
 
             final Command<OrderContract.Commands.ConfirmDelivery> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmDelivery(),

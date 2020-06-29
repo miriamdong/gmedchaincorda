@@ -18,6 +18,9 @@ import com.gmedchain.contract.OrderContract;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
 public class ShipOrderFlow {
 
     @InitiatingFlow
@@ -26,7 +29,7 @@ public class ShipOrderFlow {
         private final UniqueIdentifier linearId;
         private final int orderStatus;
 
-        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
+        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new Ship Order.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
         private final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step("Signing transaction with our private key.");
         private final ProgressTracker.Step GATHERING_BUYER_SIG = new ProgressTracker.Step("Gathering the buyer's signature.") {
@@ -79,9 +82,6 @@ public class ShipOrderFlow {
         public SignedTransaction call() throws FlowException {
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
-            // Generate an unsigned transaction.
-            Party me = getOurIdentity();
-
             StateAndRef<OrderState> stateAndRef = null;
             try {
                 stateAndRef = FlowUtils.retrieveOrderState(linearId, getServiceHub().getVaultService());
@@ -91,6 +91,14 @@ public class ShipOrderFlow {
 
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
+
+            Party me = getOurIdentity();
+
+            // Ensure the current node identity be shipper.
+            requireThat(require -> {
+                require.using("This node identity must be shipper to perform ship order flow.", me.equals(orderState.getShipper()));
+                return null;
+            });
 
             // Set order status.
             orderState.getOrder().setStatus(orderStatus);

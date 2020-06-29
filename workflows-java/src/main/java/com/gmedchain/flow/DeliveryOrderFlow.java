@@ -18,6 +18,9 @@ import com.gmedchain.contract.OrderContract;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
 public class DeliveryOrderFlow {
 
     @InitiatingFlow
@@ -26,7 +29,7 @@ public class DeliveryOrderFlow {
         private final UniqueIdentifier linearId;
         private final int orderStatus;
 
-        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
+        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new Delivery Order.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
         private final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step("Signing transaction with our private key.");
         private final ProgressTracker.Step GATHERING_BUYER_SIG = new ProgressTracker.Step("Gathering the buyer's signature.") {
@@ -90,9 +93,16 @@ public class DeliveryOrderFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
+            Party me = getOurIdentity();
+
+            // Ensure the current node identity be shipper.
+            requireThat(require -> {
+                require.using("This node identity must be shipper to perform confirm order flow.", me.equals(orderState.getShipper()));
+                return null;
+            });
+
             // Set order status.
             orderState.getOrder().setStatus(orderStatus);
-
 
             // Obtain a reference to the notary we want to use.
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
@@ -100,8 +110,6 @@ public class DeliveryOrderFlow {
             // Set ownership to shipper.
             Party shipper = orderState.getShipper();
             orderState.setOwner(shipper);
-
-            Party me = getOurIdentity();
 
             final Command<OrderContract.Commands.Delivery> txCommand = new Command<>(
                     new OrderContract.Commands.Delivery(),

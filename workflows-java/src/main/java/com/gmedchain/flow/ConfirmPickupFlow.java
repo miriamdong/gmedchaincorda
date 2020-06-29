@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
 public class ConfirmPickupFlow {
 
     @InitiatingFlow
@@ -91,14 +93,20 @@ public class ConfirmPickupFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
+            Party me = getOurIdentity();
+
+            // Ensure the current node identity be seller.
+            requireThat(require -> {
+                require.using("This node identity must be seller to perform confirm pickup flow.", me.equals(orderState.getSeller()));
+                return null;
+            });
+
             // Set order status.
             orderState.getOrder().setStatus(orderStatus);
 
             // Set ownership to seller.
             Party seller = orderState.getSeller();
             orderState.setOwner(seller);
-
-            Party me = getOurIdentity();
 
             final Command<OrderContract.Commands.ConfirmPickup> txCommand = new Command<>(
                     new OrderContract.Commands.ConfirmPickup(),

@@ -29,7 +29,7 @@ public class ConfirmOrderFlow {
         private final UniqueIdentifier linearId;
         private final int orderStatus;
 
-        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new IOU.");
+        private final ProgressTracker.Step GENERATING_TRANSACTION = new ProgressTracker.Step("Generating transaction based on new Confirm Order.");
         private final ProgressTracker.Step VERIFYING_TRANSACTION = new ProgressTracker.Step("Verifying contract constraints.");
         private final ProgressTracker.Step SIGNING_TRANSACTION = new ProgressTracker.Step("Signing transaction with our private key.");
         private final ProgressTracker.Step GATHERING_BUYER_SIG = new ProgressTracker.Step("Gathering the buyer's signature.") {
@@ -82,6 +82,7 @@ public class ConfirmOrderFlow {
             // Stage 1.
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
 
+            // Get the existing OrderState instance from database.
             StateAndRef<OrderState> stateAndRef = null;
             try {
                 stateAndRef = FlowUtils.retrieveOrderState(linearId, getServiceHub().getVaultService());
@@ -92,22 +93,27 @@ public class ConfirmOrderFlow {
             TransactionState transactionState = stateAndRef.getState();
             OrderState orderState = (OrderState) transactionState.getData();
 
-            // Generate an unsigned transaction.
             Party me = getOurIdentity();
+
+            // Ensure the current node identity be seller.
+            requireThat(require -> {
+                require.using("This node identity must be seller to perform confirm order flow.", me.equals(orderState.getSeller()));
+                return null;
+            });
 
             final Command<OrderContract.Commands.Confirm> txCommand = new Command<>(
                     new OrderContract.Commands.Confirm(),
                     me.getOwningKey());
 
-            // Set order status.
-            orderState.getOrder().setStatus(orderStatus);
-
             // Obtain a reference to the notary we want to use.
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
-            // Set ownership to seller.
+            // Set order status.
+            orderState.getOrder().setStatus(orderStatus);
 
-            orderState.setOwner(me);
+            // Set ownership to seller.
+            Party seller = orderState.getSeller();
+            orderState.setOwner(seller);
 
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(stateAndRef)
