@@ -84,14 +84,14 @@ public class OrderContract implements Contract {
             });
         } else if (command.getValue() instanceof Commands.Ship) {
             requireThat(require -> {
-                require.using("The ownership of this order should be shipper in confirm order pickup", outState.getOwner().equals(outState.getShipper()));
-                require.using("Only one input should be consumed when shipping pickup an order.", inputs.size() == 1);
+                require.using("The ownership of this order should be shipper in ship order", outState.getOwner().equals(outState.getShipper()));
+                require.using("Only one input should be consumed when shipping an order.", inputs.size() == 1);
                 require.using("The order status value must be 3(Shipped) for shipping an order", outState.getOrder().getStatus() == 3);
                 return null;
             });
         } else if (command.getValue() instanceof Commands.Delivery) {
              requireThat(require -> {
-                require.using("The ownership of this order should be shipper in confirm order delivery", outState.getOwner().equals(outState.getShipper()));
+                require.using("The ownership of this order should be shipper in delivery order", outState.getOwner().equals(outState.getShipper()));
                 require.using("Only one input should be consumed when delivering an order.", inputs.size() == 1);
                 require.using("The order status value must be 4(Delivered) for delivering an order.", outState.getOrder().getStatus() == 4);
                 return null;
