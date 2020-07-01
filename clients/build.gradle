@@ -6,7 +6,8 @@ plugins {
 }
 
 ext {
-    spring_boot_version = '1.5.7.RELEASE'
+    //spring_boot_version = '1.5.7.RELEASE'
+    spring_boot_version = '2.0.2.RELEASE'
     spring_version = '4.3.11.RELEASE'
 }
 
@@ -28,6 +29,8 @@ dependencyManagement {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    compile "net.corda:corda-core:$corda_release_version"
+    compile "net.corda:corda-jackson:$corda_release_version"
     testCompile "junit:junit:$junit_version"
 
     // Corda dependencies.
@@ -59,18 +62,18 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
 
 task runPartyAServer(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.gmedchain.server.ServerKt'
+    main = 'com.gmedchain.server.Server'
     args '--server.port=50005', '--config.rpc.host=localhost', '--config.rpc.port=10005', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
 
 task runPartyBServer(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.gmedchain.server.ServerKt'
+    main = 'com.gmedchain.server.Server'
     args '--server.port=50006', '--config.rpc.host=localhost', '--config.rpc.port=10009', '--config.rpc.username=user1', '--config.rpc.password=test'
 }
 
 task runPartyCServer(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.gmedchain.server.ServerKt'
+    main = 'com.gmedchain.server.Server'
     args '--server.port=50007', '--config.rpc.host=localhost', '--config.rpc.port=10013', '--config.rpc.username=user1', '--config.rpc.password=test'
 }

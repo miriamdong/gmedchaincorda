@@ -1,4 +1,4 @@
-package com.gmedchain.server
+package com.gmedchain.kotlin.server
 
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection

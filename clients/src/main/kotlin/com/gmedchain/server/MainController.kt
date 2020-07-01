@@ -1,4 +1,4 @@
-package com.gmedchain.server
+package com.gmedchain.kotlin.server
 
 import com.gmedchain.common.Order
 import com.gmedchain.flow.CreateOrderFlow

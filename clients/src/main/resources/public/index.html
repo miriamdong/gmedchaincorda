@@ -21,12 +21,12 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="#">{{demoApp.thisNode}}</a>
         </div>
-        <button ng-click="demoApp.openModal()" type="button" class="btn btn-primary navbar-btn">Create IOU</button>
+        <button ng-click="demoApp.openModal()" type="button" class="btn btn-primary navbar-btn">Create OrderState</button>
     </div>
 </nav>
 <script type="text/ng-template" id="demoAppModal.html">
     <div class="modal-header">
-        <h4 class="modal-title">Add new IOU</h4>
+        <h4 class="modal-title">Add new Order</h4>
     </div>
     <form>
         <div class="modal-body">
@@ -64,7 +64,7 @@
         </div>
         <div class="modal-footer">
             <button ng-click="modalInstance.cancel()" type="button" class="btn btn-default">Close</button>
-            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create IOU</button>
+            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create OrderState</button>
         </div>
     </form>
 </script>
@@ -82,12 +82,12 @@
                 <div class="panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            Recorded IOUs:
+                            Recorded OrderStates:
                         </h4>
                     </div>
                 </div>
                 <div>
-                    <div ng-show="!demoApp.ious.length" class="panel-body">Use the "Create IOU" button to send an IOU to a peer.</div>
+                    <div ng-show="!demoApp.ious.length" class="panel-body">Use the "Create OrderState" button to send an OrderState to a peer.</div>
                     <div ng-repeat="iou in demoApp.ious" class="panel panel-default">
                         <div class="panel-body">
                             <ul>
@@ -111,7 +111,7 @@
                 <div class="panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            My IOUs:
+                            My OrderStates:
                         </h4>
                     </div>
                 </div>

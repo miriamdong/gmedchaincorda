@@ -73,6 +73,7 @@ class MainController(rpc: NodeRPCConnection) {
     @PostMapping(value = [ "create-iou" ], produces = [ TEXT_PLAIN_VALUE ], headers = [ "Content-Type=application/x-www-form-urlencoded" ])
     fun createIOU(request: HttpServletRequest): ResponseEntity<String> {
         val iouValue = request.getParameter("iouValue").toInt()
+
         val partyName = request.getParameter("partyName")
         if(partyName == null){
             return ResponseEntity.badRequest().body("Query parameter 'partyName' must not be null.\n")

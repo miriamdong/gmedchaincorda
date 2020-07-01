@@ -1,4 +1,4 @@
-package com.gmedchain.server
+package com.gmedchain.kotlin.server
 
 import net.corda.client.jackson.JacksonSupport
 import org.springframework.beans.factory.annotation.Autowired

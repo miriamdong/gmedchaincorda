@@ -9,6 +9,7 @@ import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
+import net.corda.core.messaging.DataFeed;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
@@ -80,7 +81,10 @@ public class ConfirmPickupFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            // Stage 1.
+            List<SignedTransaction> dataFeed = getServiceHub().getValidatedTransactions().track().getSnapshot();
+            System.out.println("TXs=" + dataFeed);
+
+            // Stage 1.d
             progressTracker.setCurrentStep(GENERATING_TRANSACTION);
 
             StateAndRef<OrderState> stateAndRef = null;
@@ -142,8 +146,6 @@ public class ConfirmPickupFlow {
 
             final SignedTransaction fullySignedTx = subFlow(
                     new CollectSignaturesFlow(signedTx, sessions, CollectSignaturesFlow.Companion.tracker()));
-
-
 
             return  subFlow(new FinalityFlow(fullySignedTx, sessions));
         }

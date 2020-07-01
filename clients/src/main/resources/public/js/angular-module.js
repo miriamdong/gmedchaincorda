@@ -33,12 +33,12 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
         modalInstance.result.then(() => {}, () => {});
     };
 
-    demoApp.getIOUs = () => $http.get(apiBaseURL + "ious")
+    demoApp.getIOUs = () => $http.get(apiBaseURL + "orders")
         .then((response) => demoApp.ious = Object.keys(response.data)
             .map((key) => response.data[key].state.data)
             .reverse());
 
-    demoApp.getMyIOUs = () => $http.get(apiBaseURL + "my-ious")
+    demoApp.getMyIOUs = () => $http.get(apiBaseURL + "my-orders")
         .then((response) => demoApp.myious = Object.keys(response.data)
             .map((key) => response.data[key].state.data)
             .reverse());
@@ -62,7 +62,7 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
                 modalInstance.formError = false;
                 $uibModalInstance.close();
 
-                let CREATE_IOUS_PATH = apiBaseURL + "create-iou"
+                let CREATE_IOUS_PATH = apiBaseURL + "create-order"
 
                 let createIOUData = $.param({
                     partyName: modalInstance.form.counterparty,
