@@ -2,8 +2,9 @@ package com.gmedchain.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gmedchain.common.Order;
+import com.gmedchain.flow.*;
 import com.gmedchain.state.OrderState;
-import com.gmedchain.flow.CreateOrderFlow;
+import com.gmedchain.flow.ConfirmPickupFlow;
 import net.corda.client.jackson.JacksonSupport;
 import net.corda.core.contracts.*;
 import net.corda.core.identity.CordaX500Name;
@@ -202,6 +203,147 @@ public class MainController {
                     .body(e.getMessage());
         }
     }
+
+    @PostMapping (value = "confirm-order" , produces =  TEXT_PLAIN_VALUE , headers =  "Content-Type=application/x-www-form-urlencoded" )
+    public ResponseEntity<String> confirmOrder(HttpServletRequest request) throws IllegalArgumentException {
+        String linearId = String.valueOf(request.getParameter("linearId"));
+        int status = Integer.valueOf(request.getParameter("status"));
+
+        if (linearId == null || linearId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Query parameter 'linearId' must be provided.\n");
+        }
+        if (status != 1) {
+            return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 1.\n");
+        }
+
+        // Conform a OrderState using the parameters given.
+        try {
+            // Start the ConfirmOrderFlow. We block and waits for the flow to return.
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            // Return the response.
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping (value = "confirm-pickup" , produces =  TEXT_PLAIN_VALUE , headers =  "Content-Type=application/x-www-form-urlencoded" )
+    public ResponseEntity<String> confirmPickup(HttpServletRequest request) throws IllegalArgumentException {
+        String linearId = String.valueOf(request.getParameter("linearId"));
+        int status = Integer.valueOf(request.getParameter("status"));
+
+        if (linearId == null || linearId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Query parameter 'linearId' must be provided.\n");
+        }
+        if (status != 2) {
+            return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 1 (ReadyForPickup).\n");
+        }
+
+        // Confirm Pickup using the parameters given.
+        try {
+            // Start the ConfirmPickupFlow. We block and waits for the flow to return.
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmPickupFlow.Initiator.class, linearId, status).getReturnValue().get();
+            // Return the response.
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping (value = "ship-order" , produces =  TEXT_PLAIN_VALUE , headers =  "Content-Type=application/x-www-form-urlencoded" )
+    public ResponseEntity<String> shipOrder(HttpServletRequest request) throws IllegalArgumentException {
+        String linearId = String.valueOf(request.getParameter("linearId"));
+        int status = Integer.valueOf(request.getParameter("status"));
+
+        if (linearId == null || linearId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Query parameter 'linearId' must be provided.\n");
+        }
+        if (status != 3) {
+            return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 3(Shipped).\n");
+        }
+
+        // Ship Order using the parameters given.
+        try {
+            // Start the ConfirmPickupFlow. We block and waits for the flow to return.
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ShipOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            // Return the response.
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping (value = "delivery-order" , produces =  TEXT_PLAIN_VALUE , headers =  "Content-Type=application/x-www-form-urlencoded" )
+    public ResponseEntity<String> deliveryOrder(HttpServletRequest request) throws IllegalArgumentException {
+        String linearId = String.valueOf(request.getParameter("linearId"));
+        int status = Integer.valueOf(request.getParameter("status"));
+
+        if (linearId == null || linearId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Query parameter 'linearId' must be provided.\n");
+        }
+        if (status != 4) {
+            return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 4(Delivered).\n");
+        }
+
+        // Delivery Order using the parameters given.
+        try {
+            // Start the ConfirmPickupFlow. We block and waits for the flow to return.
+            SignedTransaction result = proxy.startTrackedFlowDynamic(DeliveryOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            // Return the response.
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping (value = "confirm-delivery" , produces =  TEXT_PLAIN_VALUE , headers =  "Content-Type=application/x-www-form-urlencoded" )
+    public ResponseEntity<String> confirmDelivery(HttpServletRequest request) throws IllegalArgumentException {
+        String linearId = String.valueOf(request.getParameter("linearId"));
+        int status = Integer.valueOf(request.getParameter("status"));
+
+        if (linearId == null || linearId.isEmpty()) {
+            return ResponseEntity.badRequest().body("Query parameter 'linearId' must be provided.\n");
+        }
+        if (status != 5) {
+            return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 5(ConfirmDelivery).\n");
+        }
+
+        // Delivery Order using the parameters given.
+        try {
+            // Start the ConfirmPickupFlow. We block and waits for the flow to return.
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmDeliveryFlow.Initiator.class, linearId, status).getReturnValue().get();
+            // Return the response.
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
+            // For the purposes of this demo app, we do not differentiate by exception type.
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
     /**
      * Displays all OrderState that only this node has been involved in.
      */
