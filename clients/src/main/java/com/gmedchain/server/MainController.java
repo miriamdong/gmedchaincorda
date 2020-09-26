@@ -216,13 +216,14 @@ public class MainController {
             return ResponseEntity.badRequest().body("Query parameter 'status' must be equals 1.\n");
         }
 
-        // Conform a OrderState using the parameters given.
+        // Confirm a OrderState using the parameters given.
         try {
             // Start the ConfirmOrderFlow. We block and waits for the flow to return.
-            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            UniqueIdentifier uniqueIdentifier = new UniqueIdentifier(null, UUID.fromString(linearId));
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmOrderFlow.Initiator.class, uniqueIdentifier, status).getReturnValue().get();
             // Return the response.
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
             // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (Exception e) {
@@ -247,10 +248,11 @@ public class MainController {
         // Confirm Pickup using the parameters given.
         try {
             // Start the ConfirmPickupFlow. We block and waits for the flow to return.
-            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmPickupFlow.Initiator.class, linearId, status).getReturnValue().get();
+            UniqueIdentifier uniqueIdentifier = new UniqueIdentifier(null, UUID.fromString(linearId));
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmPickupFlow.Initiator.class, uniqueIdentifier, status).getReturnValue().get();
             // Return the response.
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
             // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (Exception e) {
@@ -275,10 +277,11 @@ public class MainController {
         // Ship Order using the parameters given.
         try {
             // Start the ConfirmPickupFlow. We block and waits for the flow to return.
-            SignedTransaction result = proxy.startTrackedFlowDynamic(ShipOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            UniqueIdentifier uniqueIdentifier = new UniqueIdentifier(null, UUID.fromString(linearId));
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ShipOrderFlow.Initiator.class, uniqueIdentifier, status).getReturnValue().get();
             // Return the response.
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
             // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (Exception e) {
@@ -303,10 +306,11 @@ public class MainController {
         // Delivery Order using the parameters given.
         try {
             // Start the ConfirmPickupFlow. We block and waits for the flow to return.
-            SignedTransaction result = proxy.startTrackedFlowDynamic(DeliveryOrderFlow.Initiator.class, linearId, status).getReturnValue().get();
+            UniqueIdentifier uniqueIdentifier = new UniqueIdentifier(null, UUID.fromString(linearId));
+            SignedTransaction result = proxy.startTrackedFlowDynamic(DeliveryOrderFlow.Initiator.class, uniqueIdentifier, status).getReturnValue().get();
             // Return the response.
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
             // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (Exception e) {
@@ -331,10 +335,11 @@ public class MainController {
         // Delivery Order using the parameters given.
         try {
             // Start the ConfirmPickupFlow. We block and waits for the flow to return.
-            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmDeliveryFlow.Initiator.class, linearId, status).getReturnValue().get();
+            UniqueIdentifier uniqueIdentifier = new UniqueIdentifier(null, UUID.fromString(linearId));
+            SignedTransaction result = proxy.startTrackedFlowDynamic(ConfirmDeliveryFlow.Initiator.class, uniqueIdentifier, status).getReturnValue().get();
             // Return the response.
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body("Transaction id "+ result.getId() +" committed to ledger.\n " + result.toString());
             // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (Exception e) {
